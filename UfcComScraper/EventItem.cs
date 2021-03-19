@@ -1,4 +1,6 @@
-﻿namespace UfcComScraper
+﻿using System.Collections.Generic;
+
+namespace UfcComScraper
 {
     public class EventItem
     {
