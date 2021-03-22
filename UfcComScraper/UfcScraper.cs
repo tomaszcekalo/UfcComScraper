@@ -18,6 +18,8 @@ namespace UfcComScraper
     {
         private readonly ScrapingBrowser _browser;
         private readonly char[] _whiteSpace = new char[] { '\n', ' ' };
+        private readonly FightResultEqualityComparer _equalityComparer = new FightResultEqualityComparer();
+        private readonly string _fightListing = ".c-listing-fight";
 
         public UfcScraper()
         {
@@ -141,6 +143,7 @@ namespace UfcComScraper
         {
             return node.CssSelect(".c-listing-fight__result")
                 .Select(ParseFightResult)
+                .Distinct(_equalityComparer)
                 .ToList();
         }
         public FightListItem ParseFight(HtmlNode node)
@@ -168,7 +171,7 @@ namespace UfcComScraper
             {
                 BroadcasterTime = broadcasterTime?.InnerText.Trim(),
                 BroadcasterTimestamp = broadcasterTime?.Attributes["data-timestamp"].Value,
-                Fights = node.CssSelect(".c-listing-fight")
+                Fights = node.CssSelect(_fightListing)
                     .Select(ParseFight)
                     .ToList()
             };
@@ -196,7 +199,7 @@ namespace UfcComScraper
                 Prelims = ParseFightCard(fightCardPrelims),
                 Main = ParseFightCard(mainCard),
                 Fights = (fightCardPrelimsEarly == null && fightCardPrelims == null && mainCard == null) ?
-                    node.CssSelect(".c-listing-fight")
+                    node.CssSelect(_fightListing)
                     .Select(ParseFight)
                     .ToList()
                     : null
