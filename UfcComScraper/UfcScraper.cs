@@ -12,6 +12,14 @@ namespace UfcComScraper
         IEnumerable<string> GetEventLinks(string url);
         IEnumerable<EventListItem> GetEventListItems(string url);
         IEnumerable<string> GetEventLinks(HtmlNode htmlNode);
+        IEnumerable<EventItem> Scrape();
+        FightOdds ParseOdds(HtmlNode node);
+        EventFighter ParseFighter(HtmlNode node);
+        FightResult ParseFightResult(HtmlNode node);
+        FightListItem ParseFight(HtmlNode node);
+        FightCard ParseFightCard(HtmlNode node);
+        EventItem ScrapeEvent(HtmlNode node);
+        EventItem ScrapeEvent(string linkHref);
     }
 
     public class UfcScraper : IUfcScraper
