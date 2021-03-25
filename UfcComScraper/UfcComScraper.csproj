@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Tomasz Cekało</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/tomaszcekalo/UfcComScraper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/tomaszcekalo/UfcComScraper</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

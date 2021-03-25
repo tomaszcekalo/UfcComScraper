@@ -4,8 +4,6 @@ namespace UfcComScraper
 {
     public class EventItem
     {
-        //public DateTime DataMainCard { get; set; }
-        //public DateTime DataPrelimsCard { get; set; }
         public string Headline { get; set; }
 
         public string HeadlinePrefix { get; set; }
