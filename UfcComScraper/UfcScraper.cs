@@ -20,6 +20,15 @@ namespace UfcComScraper
         FightCard ParseFightCard(HtmlNode node);
         EventItem ScrapeEvent(HtmlNode node);
         EventItem ScrapeEvent(string linkHref);
+        IEnumerable<TitleHolder> GetTitleHolders(string url);
+        IEnumerable<TitleHolder> GetTitleHolders(HtmlNode node);
+        TitleHolder ParseTitleHolder(HtmlNode node);
+        TitleHolderSocial ParseTitleHolderSocial(HtmlNode node);
+        IEnumerable<ViewGrouping> GetRankings(string url);
+        IEnumerable<ViewGrouping> GetRankings(HtmlNode node);
+        ViewGrouping ParseViewGrouping(HtmlNode node);
+        RankingItem ParseChampion(HtmlNode champion);
+        RankingItem ParseRanked(HtmlNode node);
     }
 
     public class UfcScraper : IUfcScraper
@@ -50,6 +59,7 @@ namespace UfcComScraper
             var headlines = node.CssSelect(".c-card-event--result__headline");
             return headlines.Select(x => x.FirstChild.GetAttributeValue("href", string.Empty));
         }
+
         //add tests like:
         //string htmlString = 'Your html string here...';
         //HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
@@ -220,6 +230,130 @@ namespace UfcComScraper
         {
             WebPage homePage = _browser.NavigateToPage(new Uri(Consts.UfcComUrlBase + linkHref));
             return ScrapeEvent(homePage.Html);
+        }
+        public IEnumerable<TitleHolder> GetTitleHolders(string url = Consts.UfcComUrlAthletes)
+        {
+            WebPage homePage = _browser.NavigateToPage(new Uri(url));
+            return GetTitleHolders(homePage.Html);
+        }
+
+        public IEnumerable<TitleHolder> GetTitleHolders(HtmlNode node)
+        {
+            var headlines = node.CssSelect(".athlete-titleholder-content");
+            return headlines.Select(x => ParseTitleHolder(x));
+        }
+
+        public TitleHolder ParseTitleHolder(HtmlNode node)
+        {
+            var link = node.CssSelect(".ath-n__name a")
+                .FirstOrDefault();
+
+            var result = new TitleHolder()
+            {
+                Weight = node.CssSelect(".ath-weight")
+                    .FirstOrDefault()
+                    ?.InnerText,
+                WeightClass = node.CssSelect(".ath-wlcass")
+                    .FirstOrDefault()
+                    ?.InnerText,
+                Thumbnail = node.CssSelect(".atm-thumbnail img")
+                    .FirstOrDefault()
+                    ?.Attributes["src"]
+                    .Value,
+                Nickname = node.CssSelect(".field--name-nickname")
+                    .FirstOrDefault()
+                    ?.InnerText
+                    .Trim(),
+                Href = link?.Attributes["href"].Value,
+                Name = link?.InnerText,
+                Record = node.CssSelect(".c-ath--record")
+                    .FirstOrDefault()
+                    ?.InnerText
+                    .Trim(),
+                LastFight = node.CssSelect(".view-fighter-last-fight")
+                    .FirstOrDefault()
+                    ?.InnerText
+                    .Trim(),
+                Socials = node.CssSelect(".c-menu-social .c-menu-social__item a.c-menu-social__link")
+                    .Select(x => ParseTitleHolderSocial(x))
+                //.ToList()
+            };
+            return result;
+        }
+
+        public TitleHolderSocial ParseTitleHolderSocial(HtmlNode node)
+        {
+            var result = new TitleHolderSocial()
+            {
+                Title = node.CssSelect("title")
+                    .FirstOrDefault()
+                    ?.InnerText,
+                Href = node.Attributes["href"].Value
+            };
+            return result;
+        }
+
+        public IEnumerable<ViewGrouping> GetRankings(string url = Consts.UfcComUrlRankings)
+        {
+            WebPage homePage = _browser.NavigateToPage(new Uri(url));
+            return GetRankings(homePage.Html);
+        }
+
+        public IEnumerable<ViewGrouping> GetRankings(HtmlNode node)
+        {
+            var result = node.CssSelect(".view-grouping")
+                .Select(x => ParseViewGrouping(x));
+            return result;
+        }
+
+        public ViewGrouping ParseViewGrouping(HtmlNode node)
+        {
+            var champion = node.CssSelect(".rankings--athlete--champion")
+                .FirstOrDefault();
+            var rankers = node.CssSelect("table tbody tr")
+                    .Select(x => ParseRanked(x))
+                    .ToList();
+            rankers.Insert(0, ParseChampion(champion));
+
+            var result = new ViewGrouping()
+            {
+                WeightClass = node.CssSelect(".view-grouping-header")
+                    .FirstOrDefault()?.FirstChild.InnerText,
+                Rankers = rankers
+            };
+            return result;
+        }
+
+        public RankingItem ParseChampion(HtmlNode champion)
+        {
+            var result = new RankingItem()
+            {
+                Href = champion.CssSelect(".view-athletes a").FirstOrDefault()?.Attributes["href"].Value,
+                Name = champion.CssSelect(".view-athletes").FirstOrDefault()?.InnerText.Trim(),
+                Rank = (champion.CssSelect(".view-grouping-header span").FirstOrDefault()?.InnerText ?? "")
+                    + (champion.CssSelect(".div.info h6 span.text").FirstOrDefault()?.InnerText ?? "")
+            };
+            return result;
+        }
+
+        public RankingItem ParseRanked(HtmlNode node)
+        {
+            var result = new RankingItem()
+            {
+                Rank = node.CssSelect(".views-field-weight-class-rank")
+                    .FirstOrDefault()
+                    ?.InnerText
+                    .Trim(),
+                Name = node.CssSelect(".view-id-athletes")
+                    .FirstOrDefault()
+                    ?.InnerText
+                    .Trim(),
+                Href = node.CssSelect(".view-id-athletes a")
+                    .FirstOrDefault()
+                    ?.Attributes["href"]
+                    .Value
+            };
+            return result;
         }
     }
 }
