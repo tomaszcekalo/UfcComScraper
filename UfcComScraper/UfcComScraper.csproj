@@ -7,6 +7,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/tomaszcekalo/UfcComScraper</PackageProjectUrl>
     <RepositoryUrl>https://github.com/tomaszcekalo/UfcComScraper</RepositoryUrl>
+    <Version>1.0.1</Version>
+    <PackageTags>ufc, ufc.com, scraper, scraping</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

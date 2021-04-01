@@ -295,8 +295,8 @@ namespace UfcComScraper
 
         public IEnumerable<ViewGrouping> GetRankings(string url = Consts.UfcComUrlRankings)
         {
-            WebPage homePage = _browser.NavigateToPage(new Uri(url));
-            return GetRankings(homePage.Html);
+            WebPage page = _browser.NavigateToPage(new Uri(url));
+            return GetRankings(page.Html);
         }
 
         public IEnumerable<ViewGrouping> GetRankings(HtmlNode node)
@@ -353,6 +353,122 @@ namespace UfcComScraper
                     ?.Attributes["href"]
                     .Value
             };
+            return result;
+        }
+
+        public Athlete ScrapeAthlete(string url)
+        {
+            WebPage page = _browser.NavigateToPage(new Uri(url));
+            return ParseAthlete(page.Html);
+        }
+
+        public StatCompareGroup ParseStatCompareGroup(HtmlNode node)
+        {
+            var result = new StatCompareGroup()
+            {
+                Label = node.CssSelect(".c-stat-compare__label")
+                    .FirstOrDefault()
+                    ?.InnerText,
+                LabelSuffix = node.CssSelect(".c-stat-compare__label-suffix")
+                    .FirstOrDefault()
+                    ?.InnerText,
+                Number = node.CssSelect(".c-stat-compare__number")
+                    .FirstOrDefault()
+                    ?.InnerText,
+            };
+            return result;
+        }
+
+        public Athlete ParseAthlete(HtmlNode node)
+        {
+            var statCompare = node.CssSelect(".c-stat-compare")
+                .Select(x => new
+                {
+                    a = x.CssSelect(".c-stat-compare__group-1")
+                        .Select(ParseStatCompareGroup)
+                        .FirstOrDefault(),
+                    b = x.CssSelect(".c-stat-compare__group-2")
+                        .Select(ParseStatCompareGroup)
+                        .FirstOrDefault(),
+                })
+                .ToList();
+            var statBars = node.CssSelect(".c-stat-3bar")
+                .Select(x => new Stat3Bar()
+                {
+                    Title = x.CssSelect(".c-stat-3bar__title")
+                        .FirstOrDefault()
+                        ?.InnerText,
+                    BarGroups = x.CssSelect(".c-stat-3bar__group")
+                        .Select(y => new
+                        {
+                            Label = y.CssSelect(".c-stat-3bar__label")
+                                .FirstOrDefault()
+                            ?.InnerText,
+                            Value = y.CssSelect(".c-stat-3bar__value")
+                                .FirstOrDefault()
+                                ?.InnerText,
+                        })
+                        .ToDictionary(y => y.Label, y => y.Value)
+                });
+            var athleteDetail = node.CssSelect(".c-overlap-athlete-detail")
+                .Select(x => new
+                {
+                    Chart = x.CssSelect(".c-overlap__chart title")
+                        .FirstOrDefault()
+                        ?.InnerHtml,
+                    Title = x.CssSelect(".c-overlap--stats__title")
+                        .FirstOrDefault()
+                        ?.InnerText
+                        .Trim(),
+                    Stats = x.CssSelect(".c-overlap__stats")
+                        .FirstOrDefault()
+                        ?.InnerText
+                });
+            var result = new Athlete();
+            result.HeadlinePrefix = node.CssSelect(".c-hero--full__headline-prefix")
+                .FirstOrDefault()
+                ?.InnerText
+                .Trim();
+            result.Headline = node.CssSelect(".c-hero--full__headline")
+                .FirstOrDefault()
+                ?.InnerText
+                .Trim();
+            result.HeadlineSuffix = node.CssSelect(".c-hero__headline-suffix")
+                .FirstOrDefault()
+                ?.InnerText
+                .Trim();
+            result.PromotedRecords = node.CssSelect(".c-record__promoted")
+                .Select(x => new
+                {
+                    text = x.CssSelect(".c-record__promoted-text")
+                        .FirstOrDefault()
+                        ?.InnerText,
+                    figure = x.CssSelect(".c-record__promoted-figure")
+                        .FirstOrDefault()
+                        ?.InnerText
+                })
+                .Where(x => !string.IsNullOrEmpty(x.text))
+                .ToDictionary(x => x.text, x => x.figure);
+            result.Bios = node.CssSelect(".c-bio__field")
+                .ToDictionary(
+                    x => x.CssSelect(".c-bio__label")
+                        .FirstOrDefault()
+                        ?.InnerText,
+                    x => x.CssSelect(".c-bio__text")
+                        .FirstOrDefault()
+                        ?.InnerText
+                        .Trim());
+            result.Socials = node.CssSelect("a.c-bio__social-link")
+                .Select(x => new
+                {
+                    href = x.Attributes["href"].Value,
+                    title = x
+                        //.CssSelect("title")
+                        //.FirstOrDefault()
+                        //?
+                        .InnerHtml
+                }).ToDictionary(x => x.href, x => x.title);
+            result.QnA = "";
             return result;
         }
     }
