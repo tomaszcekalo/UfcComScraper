@@ -374,7 +374,8 @@ namespace UfcComScraper
                     ?.InnerText,
                 Number = node.CssSelect(".c-stat-compare__number")
                     .FirstOrDefault()
-                    ?.InnerText,
+                    ?.InnerText
+                    .Trim(),
             };
             return result;
         }
