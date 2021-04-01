@@ -72,6 +72,12 @@ namespace UfcComScraper
 
         //add https://welcome.ufcfightpass.com/schedule parser
 
+        // add https://fightmetric.rds.ca/events/completed parser
+
+        // add http://ufcstats.com/event-details/9114c8ded5ccd71d parser
+
+        // add http://ufcstats.com/statistics/events/upcoming parer
+
         public IEnumerable<EventListItem> GetEventListItems(string url = Consts.UfcComUrlEvents)
         {
             WebPage homePage = _browser.NavigateToPage(new Uri(url));
