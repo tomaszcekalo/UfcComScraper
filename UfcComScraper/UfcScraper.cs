@@ -11,24 +11,9 @@ namespace UfcComScraper
     {
         IEnumerable<string> GetEventLinks(string url);
         IEnumerable<EventListItem> GetEventListItems(string url);
-        IEnumerable<string> GetEventLinks(HtmlNode htmlNode);
-        IEnumerable<EventItem> Scrape();
-        FightOdds ParseOdds(HtmlNode node);
-        EventFighter ParseFighter(HtmlNode node);
-        FightResult ParseFightResult(HtmlNode node);
-        FightListItem ParseFight(HtmlNode node);
-        FightCard ParseFightCard(HtmlNode node);
-        EventItem ScrapeEvent(HtmlNode node);
         EventItem ScrapeEvent(string linkHref);
         IEnumerable<TitleHolder> GetTitleHolders(string url);
-        IEnumerable<TitleHolder> GetTitleHolders(HtmlNode node);
-        TitleHolder ParseTitleHolder(HtmlNode node);
-        TitleHolderSocial ParseTitleHolderSocial(HtmlNode node);
         IEnumerable<ViewGrouping> GetRankings(string url);
-        IEnumerable<ViewGrouping> GetRankings(HtmlNode node);
-        ViewGrouping ParseViewGrouping(HtmlNode node);
-        RankingItem ParseChampion(HtmlNode champion);
-        RankingItem ParseRanked(HtmlNode node);
     }
 
     public class UfcScraper : IUfcScraper
@@ -68,8 +53,6 @@ namespace UfcComScraper
 
         // add string selectors to constants
 
-        //add sherdog parser
-
         //add https://welcome.ufcfightpass.com/schedule parser
 
         public IEnumerable<EventListItem> GetEventListItems(string url = Consts.UfcComUrlEvents)
@@ -107,13 +90,6 @@ namespace UfcComScraper
                 result.Add(item);
             }
 
-            return result;
-        }
-
-        public IEnumerable<EventItem> Scrape()
-        {
-            var links = GetEventLinks();
-            var result = links.Select(ScrapeEvent).ToList();
             return result;
         }
 
