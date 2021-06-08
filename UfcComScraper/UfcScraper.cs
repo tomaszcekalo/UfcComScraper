@@ -172,7 +172,7 @@ namespace UfcComScraper
             return result;
         }
 
-        public EventItem ScrapeEvent(HtmlNode node)
+        public EventItem ParseEvent(HtmlNode node)
         {
             var headlineSuffix = node.CssSelect(".c-hero__headline-suffix").FirstOrDefault();
             var mainCard = node.CssSelect(".main-card").FirstOrDefault();
@@ -205,7 +205,7 @@ namespace UfcComScraper
         public EventItem ScrapeEvent(string linkHref)
         {
             WebPage homePage = _browser.NavigateToPage(new Uri(Consts.UfcComUrlBase + linkHref));
-            return ScrapeEvent(homePage.Html);
+            return ParseEvent(homePage.Html);
         }
         public IEnumerable<TitleHolder> GetTitleHolders(string url = Consts.UfcComUrlAthletes)
         {
