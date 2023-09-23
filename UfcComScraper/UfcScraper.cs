@@ -44,6 +44,10 @@ namespace UfcComScraper
             var headlines = node.CssSelect(".c-card-event--result__headline");
             return headlines.Select(x => x.FirstChild.GetAttributeValue("href", string.Empty));
         }
+        public IEnumerable<EventItem> Scrape()
+        {
+            return GetEventLinks().Select(new Func<string, EventItem>(ScrapeEvent)).ToList();
+        }
 
         //add tests like:
         //string htmlString = 'Your html string here...';
