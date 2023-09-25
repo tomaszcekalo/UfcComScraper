@@ -10,9 +10,13 @@ namespace UfcComScraper
     public interface IUfcScraper
     {
         IEnumerable<string> GetEventLinks(string url);
+
         IEnumerable<EventListItem> GetEventListItems(string url);
+
         EventItem ScrapeEvent(string linkHref);
+
         IEnumerable<TitleHolder> GetTitleHolders(string url);
+
         IEnumerable<ViewGrouping> GetRankings(string url);
     }
 
@@ -44,6 +48,7 @@ namespace UfcComScraper
             var headlines = node.CssSelect(".c-card-event--result__headline");
             return headlines.Select(x => x.FirstChild.GetAttributeValue("href", string.Empty));
         }
+
         public IEnumerable<EventItem> Scrape()
         {
             return GetEventLinks().Select(new Func<string, EventItem>(ScrapeEvent)).ToList();
@@ -103,11 +108,11 @@ namespace UfcComScraper
             {
                 Rank = node.CssSelect(".c-listing-fight__corner-rank").FirstOrDefault()?.InnerText.Trim(),
                 GivenName = node.CssSelect(".c-listing-fight__corner-given-name")
-                    .First()
-                    .InnerText,
+                    .FirstOrDefault()
+                    ?.InnerText,
                 FamilyName = node.CssSelect(".c-listing-fight__corner-family-name")
-                .First()
-                .InnerText,
+                .FirstOrDefault()
+                ?.InnerText,
                 FightOutcome =
                     node.CssSelect(".c-listing-fight__outcome-wrapper ").FirstOrDefault()?.InnerText.Trim(),
                 Image = node.CssSelect("img").FirstOrDefault()?.Attributes["src"].Value,
@@ -127,6 +132,7 @@ namespace UfcComScraper
             };
             return result;
         }
+
         public FightResult ParseFightResult(HtmlNode node)
         {
             var divs = node.CssSelect("div").ToArray();
@@ -144,15 +150,70 @@ namespace UfcComScraper
                 .Distinct(_equalityComparer)
                 .ToList();
         }
+
+        public FightDetails ParseFightDetails(HtmlNode node)
+        {
+            var result = new FightDetails()
+            {
+                WeightClass = node.CssSelect("div.c-listing-fight__class-text").FirstOrDefault()?.InnerText,
+                Ranks = node.CssSelect(".c-listing-fight__ranks-row .c-listing-fight__corner-rank").Select(x => x.InnerText.Trim()).ToArray(),
+                IsLiveNow = !node.CssSelect("div.c-listing-fight__banner--live").FirstOrDefault()?.HasClass("hidden"),
+                BlueCorner = ParseCornerDetails(node.CssSelect(".c-listing-fight__corner-name--blue").FirstOrDefault()),
+                RedCorner = ParseCornerDetails(node.CssSelect(".c-listing-fight__corner-name--red").FirstOrDefault()),
+                Awards= node.CssSelect(".c-listing-fight__awards span.text").Select(x => x.InnerText).ToArray()
+            };
+            return result;
+        }
+
+        public CornerDetails ParseCornerDetails(HtmlNode node)
+        {
+            var anchor = node.CssSelect("a").FirstOrDefault();
+            var result = new CornerDetails()
+            {
+                Url = anchor?.Attributes["href"].Value,
+                GivenName = anchor?.CssSelect(".c-listing-fight__corner-given-name").FirstOrDefault()?.InnerText,
+                FamilyName = anchor?.CssSelect(".c-listing-fight__corner-family-name").FirstOrDefault()?.InnerText,
+            };
+            return result;
+        }
+        public FightCorner ParseFightCorner(HtmlNode node)
+        {
+            var anchor= node.CssSelect("a").FirstOrDefault();
+
+            var result = new FightCorner()
+            {
+                Image = anchor.CssSelect("img").FirstOrDefault()?.Attributes["src"].Value,
+                Url = anchor?.Attributes["href"].Value,
+                Outcome = node.CssSelect(".c-listing-fight__outcome-wrapper").FirstOrDefault()?.InnerText.Trim(),
+            };
+            return result;
+        }
+
         public FightListItem ParseFight(HtmlNode node)
         {
+            var fightDetails = node.CssSelect("div.c-listing-fight__details ")
+                .Select(x => ParseFightDetails(x))
+                .FirstOrDefault();
+            var redCorner = node.CssSelect(".c-listing-fight__corner--red").Select(ParseFightCorner).FirstOrDefault();
+            var blueCorner = node.CssSelect(".c-listing-fight__corner--blue").Select(ParseFightCorner).FirstOrDefault();
+
             var result = new FightListItem
             {
                 FMID = node.Attributes["data-fmid"]?.Value,
                 WeightClass = node.CssSelect(".c-listing-fight__class").FirstOrDefault()?.InnerText,
-                BlueCorner = ParseFighter(node.CssSelect(".c-listing-fight__corner--red").FirstOrDefault()),
-                RedCorner = ParseFighter(node.CssSelect(".c-listing-fight__corner--blue").FirstOrDefault()),
-                Odds = ParseOdds(node.CssSelect(".c-listing-fight__odds").FirstOrDefault()),
+                RedCorner = new EventFighter()
+                {
+                    FamilyName = fightDetails.RedCorner.FamilyName,
+                    GivenName = fightDetails.RedCorner.GivenName,
+                    Rank = fightDetails.Ranks[0],
+                },
+                BlueCorner = new EventFighter()
+                {
+                    FamilyName=fightDetails.BlueCorner.FamilyName,
+                    GivenName=fightDetails.BlueCorner.GivenName,
+                    Rank = fightDetails.Ranks[1],
+                },
+                Odds = ParseOdds(node.CssSelect(".c-listing-fight__odds-wrapper").FirstOrDefault()),
                 Results = ParseFightResults(node)
             };
             return result;
@@ -211,6 +272,7 @@ namespace UfcComScraper
             WebPage homePage = _browser.NavigateToPage(new Uri(Consts.UfcComUrlBase + linkHref));
             return ParseEvent(homePage.Html);
         }
+
         public IEnumerable<TitleHolder> GetTitleHolders(string url = Consts.UfcComUrlAthletes)
         {
             WebPage homePage = _browser.NavigateToPage(new Uri(url));
