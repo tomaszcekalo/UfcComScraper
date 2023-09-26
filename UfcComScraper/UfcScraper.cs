@@ -120,16 +120,9 @@ namespace UfcComScraper
             return result;
         }
 
-        public FightOdds ParseOdds(HtmlNode node)
+        public string ParseCountry(HtmlNode node)
         {
-            var odds = node.CssSelect(".c-listing-fight__odds-amount")
-                .Select(x => x.InnerText)
-                .ToArray();
-            var result = new FightOdds
-            {
-                Red = odds[0],
-                Blue = odds[1]
-            };
+            var result=node.CssSelect(".c-listing-fight__country-text").FirstOrDefault()?.InnerText;
             return result;
         }
 
@@ -189,6 +182,16 @@ namespace UfcComScraper
             return result;
         }
 
+        public FightOdds ParseFightOdds(HtmlNode node)
+        {
+            var result = new FightOdds()
+            {
+                Red = node.CssSelect(".c-listing-fight__odds-amount").FirstOrDefault()?.InnerText,
+                Blue = node.CssSelect(".c-listing-fight__odds-amount").LastOrDefault()?.InnerText,
+            };
+            return result;
+        }
+
         public FightListItem ParseFight(HtmlNode node)
         {
             var fightDetails = node.CssSelect("div.c-listing-fight__details ")
@@ -196,24 +199,33 @@ namespace UfcComScraper
                 .FirstOrDefault();
             var redCorner = node.CssSelect(".c-listing-fight__corner--red").Select(ParseFightCorner).FirstOrDefault();
             var blueCorner = node.CssSelect(".c-listing-fight__corner--blue").Select(ParseFightCorner).FirstOrDefault();
+            var fightOddsRow= node.CssSelect(".c-listing-fight__odds-row").FirstOrDefault();
+            var redCountry = node.CssSelect(".c-listing-fight__country--red").Select(ParseCountry).FirstOrDefault();
+            var blueCountry = node.CssSelect(".c-listing-fight__country--blue").Select(ParseCountry).FirstOrDefault();
 
             var result = new FightListItem
             {
                 FMID = node.Attributes["data-fmid"]?.Value,
-                WeightClass = node.CssSelect(".c-listing-fight__class").FirstOrDefault()?.InnerText,
+                WeightClass = node.CssSelect(".c-listing-fight__class-text").FirstOrDefault()?.InnerText.Trim(),
                 RedCorner = new EventFighter()
                 {
                     FamilyName = fightDetails.RedCorner.FamilyName,
                     GivenName = fightDetails.RedCorner.GivenName,
                     Rank = fightDetails.Ranks[0],
+                    Country = redCountry,
+                    Image = redCorner?.Image,
+                    FightOutcome=redCorner.Outcome
                 },
                 BlueCorner = new EventFighter()
                 {
                     FamilyName=fightDetails.BlueCorner.FamilyName,
                     GivenName=fightDetails.BlueCorner.GivenName,
                     Rank = fightDetails.Ranks[1],
+                    Country = blueCountry,
+                    Image = blueCorner?.Image,
+                    FightOutcome = redCorner.Outcome
                 },
-                Odds = ParseOdds(node.CssSelect(".c-listing-fight__odds-wrapper").FirstOrDefault()),
+                Odds = ParseFightOdds(node.CssSelect(".c-listing-fight__odds-wrapper").FirstOrDefault()),
                 Results = ParseFightResults(node)
             };
             return result;
@@ -234,6 +246,14 @@ namespace UfcComScraper
                     .Select(ParseFight)
                     .ToList()
             };
+            if(!string.IsNullOrWhiteSpace(result.BroadcasterTimestamp))
+            {
+                if(int.TryParse(result.BroadcasterTimestamp, out var unixTimestamp))
+                {
+                    result.BroadcasterTimestampDateTimeUtc = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp).UtcDateTime;
+                }
+                
+            }
             return result;
         }
 

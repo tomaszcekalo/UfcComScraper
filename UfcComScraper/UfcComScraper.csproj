@@ -2,11 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Authors>Tomasz Cekało</Authors>
+	  <Authors>Tomasz Cekało</Authors>
+	  <Company>Tomasz Cekało</Company>
+	  <Version>1.0.2</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <PackageProjectUrl>https://github.com/tomaszcekalo/UfcComScraper</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/tomaszcekalo/UfcComScraper</RepositoryUrl>
+	  <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/tomaszcekalo/UfcComScraper</PackageProjectUrl>
     <RepositoryUrl>https://github.com/tomaszcekalo/UfcComScraper</RepositoryUrl>
+	  <Description> Scraper for http://ufc.com/ </Description>
+	  <PackageTags>scraper, ufc,</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

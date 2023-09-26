@@ -7,5 +7,6 @@
         public string FamilyName { get; set; }
         public string FightOutcome { get; set; }
         public string Image { get; set; }
+        public string Country { get; set; }
     }
 }
