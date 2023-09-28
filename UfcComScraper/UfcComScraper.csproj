@@ -14,7 +14,15 @@
     <RepositoryUrl>https://github.com/tomaszcekalo/UfcComScraper</RepositoryUrl>
 	  <Description> Scraper for http://ufc.com/ </Description>
 	  <PackageTags>scraper, ufc,</PackageTags>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ScrapySharp" Version="3.0.0" />
