@@ -18,6 +18,7 @@ namespace UfcComScraper
         IEnumerable<TitleHolder> GetTitleHolders(string url);
 
         IEnumerable<ViewGrouping> GetRankings(string url);
+        IEnumerable<EventItem> Scrape();
     }
 
     public class UfcScraper : IUfcScraper
