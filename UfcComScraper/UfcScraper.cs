@@ -291,7 +291,9 @@ namespace UfcComScraper
         public EventItem ScrapeEvent(string linkHref)
         {
             WebPage homePage = _browser.NavigateToPage(new Uri(Consts.UfcComUrlBase + linkHref));
-            return ParseEvent(homePage.Html);
+            var result= ParseEvent(homePage.Html);
+            result.Url = linkHref;
+            return result;
         }
 
         public IEnumerable<TitleHolder> GetTitleHolders(string url = Consts.UfcComUrlAthletes)

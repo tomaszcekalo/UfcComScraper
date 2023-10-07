@@ -14,5 +14,6 @@ namespace UfcComScraper
         public string HeadlineSuffixTimestamp { get; set; }
         public string Venue { get; set; }
         public IEnumerable<FightListItem> Fights { get; set; }
+        public string Url { get; set; }
     }
 }
