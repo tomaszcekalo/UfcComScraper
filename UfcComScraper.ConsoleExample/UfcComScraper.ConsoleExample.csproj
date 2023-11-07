@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UfcComScraper\UfcComScraper.csproj" />
+    <ProjectReference Include="..\UfcComScraper.ScrapySharp\UfcComScraper.ScrapySharp.csproj" />
   </ItemGroup>
 
 </Project>

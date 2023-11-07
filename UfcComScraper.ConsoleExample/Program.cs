@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using UfcComScraper.ScrapySharp;
 
 namespace UfcComScraper.ConsoleExample
 {
@@ -7,7 +8,7 @@ namespace UfcComScraper.ConsoleExample
     {
         private static void Main(string[] args)
         {
-            var result = new UfcScraper()
+            var result = new ScrapySharpUfcScraper()
             //.GetTitleHolders();
             //.GetRankings();
             .Scrape();

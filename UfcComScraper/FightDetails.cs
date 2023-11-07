@@ -2,11 +2,11 @@
 {
     public class FightDetails
     {
-        public bool? IsLiveNow { get; internal set; }
-        public string WeightClass { get; internal set; }
-        public string[] Ranks { get; internal set; }
-        public CornerDetails BlueCorner { get; internal set; }
-        public CornerDetails RedCorner { get; internal set; }
-        public string[] Awards { get; internal set; }
+        public bool? IsLiveNow { get; set; }
+        public string WeightClass { get; set; }
+        public string[] Ranks { get; set; }
+        public CornerDetails BlueCorner { get; set; }
+        public CornerDetails RedCorner { get; set; }
+        public string[] Awards { get; set; }
     }
 }

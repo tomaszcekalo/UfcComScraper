@@ -11,7 +11,7 @@ namespace UfcComScraper
         public string Href { get; set; }
         public string Name { get; set; }
         public string Record { get; set; }
-        public string LastFight { get; internal set; }
+        public string LastFight { get; set; }
         public IEnumerable<TitleHolderSocial> Socials { get; set; }
     }
 
