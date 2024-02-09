@@ -1,14 +1,17 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Threading.Tasks;
 using UfcComScraper.ScrapySharp;
 
 namespace UfcComScraper.ConsoleExample
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
-            var result = new ScrapySharpUfcScraper()
+            var result = 
+                //new ScrapySharpUfcScraper()
+                await new UfcScraper()
             //.GetTitleHolders();
             //.GetRankings();
             .Scrape();
